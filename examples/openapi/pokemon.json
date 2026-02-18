@@ -1,0 +1,82 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "PokeAPI (minimal)",
+        "version": "2.0.0"
+    },
+    "paths": {
+        "/api/v2/pokemon/{name}": {
+            "get": {
+                "summary": "Get a pokemon by name",
+                "responses": {
+                    "200": {
+                        "description": "A pokemon resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Pokemon"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Pokemon": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "base_experience",
+                    "height",
+                    "weight"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "base_experience": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "integer"
+                    },
+                    "weight": {
+                        "type": "integer"
+                    },
+                    "abilities": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "types": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "type": "string"
+            }
+        }
+    }
+}

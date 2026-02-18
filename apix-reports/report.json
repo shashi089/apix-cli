@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-02-18T07:06:42.622Z",
+  "totalPassed": 2,
+  "totalFailed": 0,
+  "totalTests": 2,
+  "totalDuration": 449,
+  "suites": [
+    {
+      "name": "PokeAPI Health Check",
+      "results": [
+        {
+          "name": "should fetch ditto data",
+          "status": "pass",
+          "duration": 349
+        },
+        {
+          "name": "should fail on non-existent pokemon",
+          "status": "pass",
+          "duration": 97
+        }
+      ],
+      "passed": 2,
+      "failed": 0,
+      "duration": 449
+    }
+  ]
+}

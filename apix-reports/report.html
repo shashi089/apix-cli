@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apix Test Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    a { color: #63b3ed; }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #2d3748;
+    }
+    .brand { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+    .brand span { color: #63b3ed; }
+    .run-meta { font-size: 0.8rem; color: #718096; text-align: right; }
+
+    /* ── Summary bar ── */
+    .summary {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      min-width: 130px;
+    }
+    .stat-card .label { font-size: 0.72rem; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 0.2rem; }
+    .stat-card.overall .value { color: #fff; }
+    .stat-card.passed  .value { color: #68d391; }
+    .stat-card.failed  .value { color: #fc8181; }
+    .stat-card.total   .value { color: #90cdf4; }
+    .stat-card.time    .value { color: #fbd38d; font-size: 1.4rem; }
+
+    .overall-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .status-pass { background: #276749; color: #c6f6d5; }
+    .status-fail { background: #742a2a; color: #fed7d7; }
+
+    /* ── Suite ── */
+    .suite {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .suite-pass { border-left: 4px solid #48bb78; }
+    .suite-fail { border-left: 4px solid #fc8181; }
+
+    .suite-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.25rem;
+      background: #171e2e;
+      border-bottom: 1px solid #2d3748;
+    }
+    .suite-name { font-weight: 600; font-size: 0.95rem; }
+    .suite-meta { font-size: 0.78rem; color: #718096; }
+
+    /* ── Table ── */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .results-table thead tr {
+      background: #171e2e;
+    }
+    .results-table th {
+      padding: 0.5rem 1rem;
+      text-align: left;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #718096;
+      border-bottom: 1px solid #2d3748;
+    }
+    .results-table td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid #1e2535;
+      vertical-align: top;
+    }
+    .test-row:last-child td { border-bottom: none; }
+    .test-row:hover { background: #1e2535; }
+    .test-row.fail { background: rgba(252,129,129,0.04); }
+
+    .test-name { width: 100%; }
+    .duration  { white-space: nowrap; color: #718096; text-align: right; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .badge-pass { background: #276749; color: #c6f6d5; }
+    .badge-fail { background: #742a2a; color: #fed7d7; }
+
+    .hint { font-size: 0.72rem; color: #718096; margin-left: 0.4rem; }
+
+    /* ── Error / Response rows ── */
+    .error-row { display: none; }
+    .error-row.open { display: table-row; }
+    .error-row td { background: #1a0a0a; padding: 0.75rem 1.25rem; }
+
+    .error-pre {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #fc8181;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .response-pre {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: #90cdf4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 0.5rem;
+      border-top: 1px solid #2d3748;
+      padding-top: 0.5rem;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #4a5568;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="brand">api<span>x</span> report</div>
+    <div class="run-meta">
+      <div>18/2/2026, 12:36:42 pm</div>
+      <div style="margin-top:0.3rem">
+        <span class="overall-badge status-pass">PASSED</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div class="stat-card passed">
+      <div class="label">Passed</div>
+      <div class="value">2</div>
+    </div>
+    <div class="stat-card failed">
+      <div class="label">Failed</div>
+      <div class="value">0</div>
+    </div>
+    <div class="stat-card total">
+      <div class="label">Total</div>
+      <div class="value">2</div>
+    </div>
+    <div class="stat-card time">
+      <div class="label">Duration</div>
+      <div class="value">449ms</div>
+    </div>
+  </div>
+
+  
+    <section class="suite suite-pass">
+      <div class="suite-header">
+        <span class="suite-name">PokeAPI Health Check</span>
+        <span class="suite-meta">
+          2 passed &nbsp;·&nbsp; 0 failed &nbsp;·&nbsp; 449ms
+        </span>
+      </div>
+      <table class="results-table">
+        <thead>
+          <tr><th>Status</th><th>Test</th><th>Duration</th></tr>
+        </thead>
+        <tbody>
+        <tr class="test-row pass" >
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td class="test-name">should fetch ditto data</td>
+          <td class="duration">349ms</td>
+        </tr>
+        
+        <tr class="test-row pass" >
+          <td><span class="badge badge-pass">PASS</span></td>
+          <td class="test-name">should fail on non-existent pokemon</td>
+          <td class="duration">97ms</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+  <footer>Generated by <strong>apix</strong> · 18/2/2026, 12:36:42 pm</footer>
+
+  <script>
+    function toggle(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

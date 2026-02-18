@@ -1,0 +1,48 @@
+{
+    "name": "@apix/cli",
+    "version": "1.0.0",
+    "description": "TypeScript-first Git-native API testing CLI with contract awareness",
+    "type": "module",
+    "main": "./dist/index.js",
+    "bin": {
+        "apix": "./dist/cli/index.js"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsx watch src/cli/index.ts",
+        "test": "node dist/cli/index.js test",
+        "prepare": "npm run build"
+    },
+    "keywords": [
+        "api-testing",
+        "cli",
+        "typescript",
+        "git-native",
+        "contract-testing",
+        "http-client",
+        "testing-framework",
+        "rest-api",
+        "api-automation"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/shashi089/apix-cli.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "ajv": "^8.18.0",
+        "commander": "^13.0.0",
+        "dotenv": "^16.6.1",
+        "fast-glob": "^3.3.3",
+        "picocolors": "^1.1.1",
+        "tsx": "^4.19.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.17.19",
+        "typescript": "^5.7.3"
+    }
+}
