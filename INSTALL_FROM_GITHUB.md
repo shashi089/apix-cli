@@ -210,15 +210,4 @@ npx apix run "tests/**/*.test.ts"
 
 Glob patterns must be quoted to prevent shell expansion.
 
----
-
-## When you're ready to publish
-
-Once you've validated apix works for your team, publishing to npm is one command:
-
-```bash
-npm login
-npm publish --access public
-```
-
 The `package.json` is already configured with `name`, `bin`, `main`, and `engines`. No changes needed.

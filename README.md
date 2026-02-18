@@ -15,20 +15,20 @@ Write API tests in TypeScript. Run them from the CLI. Validate against your Open
 
 ---
 
-## Why not Postman?
+## Why not GUI-based tools?
 
-Postman is a GUI tool built for exploration. **apix is a code-first tool built for automation.**
+Traditional GUI-based tools are built for exploration. **apix is a code-first tool built for automation.**
 
-| | Postman | apix |
+| | GUI-based Tools | apix |
 |---|---|---|
 | **Lives in Git** | ❌ JSON exports, not code | ✅ `.ts` files, full diff history |
 | **TypeScript** | ❌ Proprietary scripting | ✅ Native, typed, IDE-complete |
-| **CI/CD** | ⚠️ Requires Newman + config | ✅ `npx apix run` — done |
+| **CI/CD** | ⚠️ Requires external runners | ✅ `npx apix run` — done |
 | **OpenAPI validation** | ❌ Manual schema checks | ✅ Automatic per-request |
-| **Code review** | ❌ GUI state, no diffs | ✅ PRs, blame, history |
+| **Code review** | ❌ Proprietary state, no diffs | ✅ PRs, blame, history |
 | **Monorepo** | ❌ Workspace-level only | ✅ Per-package config |
-| **Reports** | ⚠️ Cloud-only | ✅ HTML + JSON, local |
-| **Cost** | 💸 Team plan required | ✅ Free, open-source |
+| **Reports** | ⚠️ Often Cloud-only | ✅ HTML + JSON, local |
+| **Cost** | 💸 Subscriptions required | ✅ Free, open-source |
 
 If your tests live in a GUI, they don't belong to your team — they belong to a vendor. **apix puts your tests back in your codebase.**
 
@@ -320,7 +320,7 @@ If you have a live API but no spec yet, tools can reverse-engineer one:
 
 - **[Optic](https://www.useoptic.com/)** — captures real traffic and generates a spec from it
 - **[swagger-autogen](https://github.com/swagger-autogen/swagger-autogen)** — scans Express route files
-- **Postman** — export any collection as OpenAPI 3.0 from the GUI
+- **Other tools** — export any collection as OpenAPI 3.0 from the GUI
 
 ### Recommended workflow
 
