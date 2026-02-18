@@ -549,4 +549,4 @@ Open an issue with:
 
 ## License
 
-MIT © apix contributors
+MIT © Shashidhar Naik
