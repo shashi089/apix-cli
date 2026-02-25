@@ -38,34 +38,51 @@ export class TestRunner {
 
             try {
                 const validator = this.openApiValidator;
+                const client = this.client;
+                const baseUrl = this.config.baseUrl;
 
-                const ctx: TestContext = {
-                    request: async (req: HttpRequest) => {
-                        const res = await this.client.request(req);
-                        lastResponse = res;
+                const makeRequest = async (req: HttpRequest): Promise<HttpResponse> => {
+                    const res = await client.request(req);
+                    lastResponse = res;
 
-                        if (validator) {
-                            // Extract pathname without base URL or query string
-                            let requestPath = req.url;
-                            try {
-                                const urlObj = new URL(req.url, this.config.baseUrl || 'http://localhost');
-                                requestPath = urlObj.pathname;
-                            } catch {
-                                // If URL parsing fails, use raw url as-is
-                            }
-
-                            await validator.validate(
-                                req.method ?? 'GET',
-                                requestPath,
-                                res.status,
-                                res.body
-                            );
+                    if (validator) {
+                        let requestPath = req.url;
+                        try {
+                            const urlObj = new URL(req.url, baseUrl || 'http://localhost');
+                            requestPath = urlObj.pathname;
+                        } catch {
+                            // If URL parsing fails, use raw url as-is
                         }
 
-                        return res;
-                    },
+                        await validator.validate(
+                            req.method ?? 'GET',
+                            requestPath,
+                            res.status,
+                            res.body
+                        );
+                    }
+
+                    return res;
+                };
+
+                const requestClient = {
+                    request: makeRequest,
+                    get: (url: string, options?: { headers?: Record<string, string>; params?: Record<string, string> }) =>
+                        makeRequest({ url, method: 'GET', headers: options?.headers, params: options?.params }),
+                    post: (url: string, body?: any, options?: { headers?: Record<string, string>; params?: Record<string, string> }) =>
+                        makeRequest({ url, method: 'POST', body, headers: options?.headers, params: options?.params }),
+                    put: (url: string, body?: any, options?: { headers?: Record<string, string>; params?: Record<string, string> }) =>
+                        makeRequest({ url, method: 'PUT', body, headers: options?.headers, params: options?.params }),
+                    patch: (url: string, body?: any, options?: { headers?: Record<string, string>; params?: Record<string, string> }) =>
+                        makeRequest({ url, method: 'PATCH', body, headers: options?.headers, params: options?.params }),
+                    delete: (url: string, options?: { headers?: Record<string, string>; params?: Record<string, string> }) =>
+                        makeRequest({ url, method: 'DELETE', headers: options?.headers, params: options?.params }),
+                };
+
+                const ctx: TestContext = {
+                    request: requestClient,
+                    api: requestClient,
                     expect,
-                    api: this.client,
                 };
 
                 await test.run(ctx);

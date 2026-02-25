@@ -54,8 +54,19 @@ export interface TestCase {
     run: (ctx: TestContext) => Promise<void>;
 }
 
+export interface HttpClientLike {
+    request(req: HttpRequest): Promise<HttpResponse>;
+    get(url: string, options?: { headers?: Record<string, string>; params?: Record<string, string> }): Promise<HttpResponse>;
+    post(url: string, body?: any, options?: { headers?: Record<string, string>; params?: Record<string, string> }): Promise<HttpResponse>;
+    put(url: string, body?: any, options?: { headers?: Record<string, string>; params?: Record<string, string> }): Promise<HttpResponse>;
+    patch(url: string, body?: any, options?: { headers?: Record<string, string>; params?: Record<string, string> }): Promise<HttpResponse>;
+    delete(url: string, options?: { headers?: Record<string, string>; params?: Record<string, string> }): Promise<HttpResponse>;
+}
+
 export interface TestContext {
-    request: (req: HttpRequest) => Promise<HttpResponse>;
-    expect: any; // Will be defined in assertions
-    api: any; // HttpClient instance (typed as any to avoid circular dependency)
+    /** Fluent HTTP client — use request.get(), request.post(), request.delete() etc. */
+    request: HttpClientLike;
+    /** Alias for request (fluent HTTP client) */
+    api: HttpClientLike;
+    expect: any;
 }

@@ -1,0 +1,25 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": ".",
+        "noEmit": true,
+        "baseUrl": ".",
+        "paths": {
+            "@apix/cli": [
+                "./dist/index.js"
+            ],
+            "@apix/cli/*": [
+                "./dist/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*",
+        "tests/**/*",
+        "examples/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

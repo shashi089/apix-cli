@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import pc from 'picocolors';
 import { initHandler } from './commands/init.js';
 import { runHandler } from './commands/run.js';
+import { generateHandler } from './commands/generate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkgPath = path.join(__dirname, '../../package.json');
@@ -28,8 +29,18 @@ program
     .command('run')
     .description('Run API tests')
     .argument('[pattern]', 'Glob pattern for test files', '**/*.test.ts')
-    .action(async (pattern) => {
-        await runHandler(pattern);
+    .option('-w, --watch', 'Watch files for changes and re-run tests')
+    .action(async (pattern, options) => {
+        await runHandler(pattern, options);
+    });
+
+program
+    .command('generate')
+    .description('Generate test stubs from OpenAPI spec')
+    .requiredOption('--from <file>', 'Path to OpenAPI JSON file')
+    .option('-f, --force', 'Overwrite existing files')
+    .action(async (options) => {
+        await generateHandler(options);
     });
 
 // Handle unknown commands

@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "noEmit": true,
+        "baseUrl": "..",
+        "paths": {
+            "@apix/cli": [
+                "dist/index.d.ts"
+            ]
+        }
+    },
+    "include": [
+        "**/*"
+    ],
+    "exclude": [
+        "../node_modules"
+    ]
+}

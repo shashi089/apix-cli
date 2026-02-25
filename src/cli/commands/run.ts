@@ -8,68 +8,85 @@ import { TestSuite } from '../../types/index.js';
 import { ResultCollector } from '../../reporters/collector.js';
 import { runReporters } from '../../reporters/index.js';
 
-export async function runHandler(pattern: string = '**/*.test.ts') {
-    const loader = new ConfigLoader();
-    const config = await loader.loadConfig();
-    const runner = new TestRunner(config);
-    const collector = new ResultCollector();
+import { FileWatcher } from '../../watcher/file-watcher.js';
 
-    const testFiles = await glob(pattern, { absolute: true });
+export async function runHandler(pattern: string = '**/*.test.ts', options: { watch?: boolean } = {}) {
+    const configPath = path.resolve(process.cwd(), 'apix.config.ts');
+    const testsDir = path.resolve(process.cwd(), 'tests');
 
-    if (testFiles.length === 0) {
-        logger.warn(`No test files found matching: ${pattern}`);
-        return;
-    }
+    const executeTests = async () => {
+        const loader = new ConfigLoader();
+        const config = await loader.loadConfig();
+        const runner = new TestRunner(config);
+        const collector = new ResultCollector();
 
-    let totalPassed = 0;
-    let totalFailed = 0;
-    const startTime = performance.now();
-    const { registry } = await import('../../dsl/registry.js');
+        const testFiles = await glob(pattern, { absolute: true });
 
-    for (const file of testFiles) {
-        try {
-            registry.clear();
-            // Importing the file will trigger 'test()' calls (DSL style)
-            const mod = await import(pathToFileURL(file).toString() + `?t=${Date.now()}`);
-
-            // Support both patterns:
-            // 1. DSL-style: test() calls that register into the registry
-            // 2. Exported TestSuite object (default export with .tests array)
-            let tests = registry.getTests();
-
-            if (tests.length === 0 && mod.default && Array.isArray(mod.default.tests)) {
-                const suite = mod.default as TestSuite;
-                tests = suite.tests;
-            }
-
-            if (tests.length === 0) {
-                logger.warn(`Skipping ${path.basename(file)}: No tests found`);
-                continue;
-            }
-
-            const suiteName = (mod.default as TestSuite)?.name ?? path.basename(file);
-            const suiteStart = performance.now();
-            const results = await runner.runTests(tests, suiteName);
-            const suiteDuration = Math.round(performance.now() - suiteStart);
-
-            // Collect results for reporting
-            collector.addSuite(suiteName, results, suiteDuration);
-
-            totalPassed += results.filter(r => r.passed).length;
-            totalFailed += results.filter(r => !r.passed).length;
-        } catch (error: any) {
-            logger.error(`Failed to load/run test file: ${file}`, error);
-            totalFailed++;
+        if (testFiles.length === 0) {
+            logger.warn(`No test files found matching: ${pattern}`);
+            return false;
         }
-    }
 
-    const duration = Math.round(performance.now() - startTime);
-    logger.summary(totalPassed, totalFailed, totalPassed + totalFailed, duration);
+        let totalPassed = 0;
+        let totalFailed = 0;
+        const startTime = performance.now();
+        const { registry } = await import(`../../dsl/registry.js?t=${Date.now()}`); // Force uncached registry if possible
 
-    // Generate reports (no-op if reporters not configured)
-    await runReporters(collector.getSummary(), config.reporters);
+        for (const file of testFiles) {
+            try {
+                registry.clear();
+                // Importing the file will trigger 'test()' calls (DSL style)
+                const mod = await import(pathToFileURL(file).toString() + `?t=${Date.now()}`);
 
-    if (totalFailed > 0) {
-        process.exit(1);
+                // Support both patterns:
+                // 1. DSL-style: test() calls that register into the registry
+                // 2. Exported TestSuite object (default export with .tests array)
+                let tests = registry.getTests();
+
+                if (tests.length === 0 && mod.default && Array.isArray(mod.default.tests)) {
+                    const suite = mod.default as TestSuite;
+                    tests = suite.tests;
+                }
+
+                if (tests.length === 0) {
+                    logger.warn(`Skipping ${path.basename(file)}: No tests found`);
+                    continue;
+                }
+
+                const suiteName = (mod.default as TestSuite)?.name ?? path.basename(file);
+                const suiteStart = performance.now();
+                const results = await runner.runTests(tests, suiteName);
+                const suiteDuration = Math.round(performance.now() - suiteStart);
+
+                // Collect results for reporting
+                collector.addSuite(suiteName, results, suiteDuration);
+
+                totalPassed += results.filter(r => r.passed).length;
+                totalFailed += results.filter(r => !r.passed).length;
+            } catch (error: any) {
+                logger.error(`Failed to load/run test file: ${file}`, error);
+                totalFailed++;
+            }
+        }
+
+        const duration = Math.round(performance.now() - startTime);
+        logger.summary(totalPassed, totalFailed, totalPassed + totalFailed, duration);
+
+        // Generate reports (no-op if reporters not configured)
+        await runReporters(collector.getSummary(), config.reporters);
+
+        return totalFailed === 0;
+    };
+
+    if (options.watch) {
+        const watcher = new FileWatcher(async () => {
+            await executeTests();
+        });
+        watcher.watch(testsDir, configPath);
+    } else {
+        const success = await executeTests();
+        if (!success) {
+            process.exit(1);
+        }
     }
 }
